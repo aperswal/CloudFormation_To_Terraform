@@ -12,7 +12,6 @@
 9. [Limitations](#limitations)
 10. [Troubleshooting](#troubleshooting)
 11. [Contributing](#contributing)
-12. [License](#license)
 
 ## Introduction
 
