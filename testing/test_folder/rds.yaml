@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for RDS instance with CloudWatch alarm'
+
+Parameters:
+  DBName:
+    Type: String
+    Description: 'The database name'
+  DBUsername:
+    Type: String
+    Description: 'The database admin account username'
+  DBPassword:
+    Type: String
+    NoEcho: true
+    Description: 'The database admin account password'
+  DBInstanceClass:
+    Type: String
+    Default: db.t3.micro
+    Description: 'The database instance type'
+
+Resources:
+  MyDBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: !Ref DBName
+      Engine: mysql
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      DBInstanceClass: !Ref DBInstanceClass
+      AllocatedStorage: '20'
+      PubliclyAccessible: false
+      BackupRetentionPeriod: 7
+      MultiAZ: false
+
+  CPUUtilizationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: 'Alarm if CPU exceeds 75% for 5 minutes'
+      Namespace: 'AWS/RDS'
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !Ref MyDBInstance
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 75
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlarmTopic
+
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: 'RDS Alarm Topic'
+      TopicName: 'RDSAlarmTopic'
+
+Outputs:
+  DBInstanceEndpoint:
+    Description: 'Connection endpoint for the database'
+    Value: !GetAtt MyDBInstance.Endpoint.Address
+  DBInstancePort:
+    Description: 'Port for the database connection'
+    Value: !GetAtt MyDBInstance.Endpoint.Port
+  AlarmTopicARN:
+    Description: 'ARN of the SNS topic for alarms'
+    Value: !Ref AlarmTopic
