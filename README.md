@@ -6,6 +6,8 @@
 3. [Prerequisites](#prerequisites)
 4. [Installation](#installation)
 5. [Usage](#usage)
+   - [Web Application](#web-application)
+   - [Command-Line Interface](#command-line-interface)
 6. [Project Structure](#project-structure)
 7. [How It Works](#how-it-works)
 8. [Customization](#customization)
@@ -15,15 +17,16 @@
 
 ## Introduction
 
-The CloudFormation to Terraform Converter is a web-based tool that simplifies the process of migrating AWS CloudFormation templates to Terraform configuration files. This tool is designed for cloud engineers and DevOps professionals who are transitioning from AWS-specific infrastructure-as-code to a more cloud-agnostic approach using Terraform.
+The CloudFormation to Terraform Converter is a tool that simplifies the process of migrating AWS CloudFormation templates to Terraform configuration files. This tool is designed for cloud engineers and DevOps professionals who are transitioning from AWS-specific infrastructure-as-code to a more cloud-agnostic approach using Terraform.
 
 ## Features
 
 - Web-based interface for easy file uploads
+- Command-line interface for local file conversion
 - Supports single file, multiple files, and ZIP file uploads
 - Converts CloudFormation (YAML/JSON) to Terraform (.tf) format
 - Provides immediate download of converted files
-- Allows multiple conversions without page refresh
+- Allows multiple conversions without page refresh in web interface
 - Responsive design for various device sizes
 
 ## Prerequisites
@@ -31,7 +34,8 @@ The CloudFormation to Terraform Converter is a web-based tool that simplifies th
 - Python 3.7+
 - Flask
 - Werkzeug
-- A modern web browser (Chrome, Firefox, Safari, or Edge)
+- PyYAML
+- A modern web browser (Chrome, Firefox, Safari, or Edge) for web interface
 
 ## Installation
 
@@ -54,6 +58,8 @@ The CloudFormation to Terraform Converter is a web-based tool that simplifies th
 
 ## Usage
 
+### Web Application
+
 1. Start the Flask server:
    ```
    python app.py
@@ -65,12 +71,29 @@ The CloudFormation to Terraform Converter is a web-based tool that simplifies th
 
 4. The conversion will start automatically, and you'll receive a ZIP file with the converted Terraform files.
 
+### Command-Line Interface
+
+1. Run the CLI converter:
+   ```
+   python cli_converter.py <input_path> [-o <output_directory>]
+   ```
+
+   Examples:
+   ```
+   python cli_converter.py my_template.yaml
+   python cli_converter.py my_templates_folder
+   python cli_converter.py my_templates.zip -o converted_terraform
+   ```
+
+2. The converted files will be placed in the specified output directory (or `converted_files` by default).
+
 ## Project Structure
 
 ```
 CloudFormation_To_Terraform/
 │
 ├── app.py                 # Main Flask application
+├── cli_converter.py       # Command-line interface for conversion
 ├── cf_to_tf_converter.py  # Core conversion logic
 ├── templates/
 │   └── index.html         # Main page template
@@ -83,11 +106,11 @@ CloudFormation_To_Terraform/
 
 ## How It Works
 
-1. The user selects CloudFormation files through the web interface.
-2. Files are uploaded to the server and saved in a temporary directory.
+1. The user selects CloudFormation files through the web interface or specifies them via command line.
+2. Files are processed (either uploaded to the server or read locally).
 3. The `cf_to_tf_converter.py` script processes each file, converting CloudFormation syntax to Terraform.
-4. Converted files are zipped and sent back to the user's browser for download.
-5. Temporary files are cleaned up on the server.
+4. Converted files are either zipped and sent back to the user's browser (web interface) or saved to a local directory (CLI).
+5. Temporary files are cleaned up after processing.
 
 ## Customization
 
@@ -103,7 +126,7 @@ CloudFormation_To_Terraform/
 
 ## Troubleshooting
 
-- If conversions fail, check the server logs for detailed error messages.
+- If conversions fail, check the server logs or command-line output for detailed error messages.
 - Ensure your CloudFormation templates are valid before attempting conversion.
 - For large files or many concurrent users, you may need to adjust Flask's configuration for better performance.
 
