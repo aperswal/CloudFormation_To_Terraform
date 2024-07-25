@@ -3,171 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turn CloudFormation into Terraform - Easy!</title>
+    <title>CloudFormation to Terraform Converter</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
             line-height: 1.6;
             color: #333;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f4f4f4;
         }
-        header {
-            background-color: #3498db;
-            color: #fff;
-            padding: 40px 0;
-            text-align: center;
+        h1, h2, h3 {
+            color: #2c3e50;
         }
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        .tagline {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-        .content {
+        .container {
             background-color: #ffffff;
             border-radius: 8px;
             padding: 30px;
-            margin-top: -40px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        h2 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-        .steps {
-            margin-bottom: 30px;
-        }
-        .step {
-            margin-bottom: 20px;
-        }
-        form {
+        .upload-form {
             margin-top: 20px;
-            text-align: center;
         }
-        input[type="file"] {
+        .file-input {
             display: none;
         }
-        .upload-btn {
+        .file-label {
             background-color: #3498db;
-            border: none;
-            color: white;
-            padding: 15px 30px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 18px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-        }
-        .upload-btn:hover {
-            background-color: #2980b9;
-        }
-        .error {
-            color: #e74c3c;
-            background-color: #fadbd8;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-        }
-        .benefits {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-        }
-        .benefit {
-            flex-basis: 30%;
-            text-align: center;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-        }
-        .benefit img {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 10px;
-        }
-        #result {
-            margin-top: 20px;
-            text-align: center;
-        }
-        #downloadLink {
-            display: inline-block;
-            background-color: #2ecc71;
             color: white;
             padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .file-label:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f5fe;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .security-report {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .security-score {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .security-issues {
+            margin-top: 10px;
+        }
+        .security-issue {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .severity-high {
+            background-color: #ffebee;
+            border-left: 4px solid #d32f2f;
+        }
+        .severity-medium {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffa000;
+        }
+        .severity-low {
+            background-color: #e8f5e9;
+            border-left: 4px solid #388e3c;
+        }
+        .download-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #2ecc71;
+            color: white;
             text-decoration: none;
             border-radius: 4px;
-            margin-top: 10px;
+        }
+        .download-link:hover {
+            background-color: #27ae60;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>CloudFormation to Terraform Changer</h1>
-            <p class="tagline">Make Your Cloud Setup Easy to Move</p>
-        </div>
-    </header>
-
     <div class="container">
-        <div class="content">
-            <h2>Having Trouble Moving Your Cloud Setup?</h2>
-            <p>Do you use CloudFormation but want to switch to Terraform? We can help!</p>
-
-            <div class="steps">
-                <div class="step">
-                    <h3>1. It's Hard to Change Things by Hand</h3>
-                    <p>Changing your setup files one by one takes a long time and you might make mistakes.</p>
-                </div>
-
-                <div class="step">
-                    <h3>2. Our Tool Makes It Easy</h3>
-                    <p>We can change your files for you in just a few seconds. No more waiting or worrying about mistakes!</p>
-                </div>
-
-                <div class="step">
-                    <h3>3. How to Use Our Tool</h3>
-                    <p>Just click the button below and pick your files. We'll do the rest and give you new files that work with Terraform.</p>
-                </div>
-            </div>
-
-            <form id="uploadForm" enctype="multipart/form-data">
-                <input type="file" name="file" id="file" accept=".yaml,.yml,.json,.zip" multiple>
-                <label for="file" class="upload-btn">Pick Your Files</label>
-                <p>You can choose one file, many files, or a zip file.</p>
-            </form>
-            
-            <div id="result"></div>
-
-            <div class="benefits">
-                <div class="benefit">
-                    <img src="https://img.icons8.com/ios/50/000000/speed.png" alt="Speed icon">
-                    <h3>Save Time</h3>
-                    <p>Change files fast</p>
-                </div>
-                <div class="benefit">
-                    <img src="https://img.icons8.com/ios/50/000000/check-all.png" alt="Accuracy icon">
-                    <h3>No Mistakes</h3>
-                    <p>Get it right every time</p>
-                </div>
-                <div class="benefit">
-                    <img src="https://img.icons8.com/ios/50/000000/cloud-sync.png" alt="Flexibility icon">
-                    <h3>Easy to Move</h3>
-                    <p>Work with different clouds</p>
-                </div>
-            </div>
+        <h1>CloudFormation to Terraform Converter</h1>
+        <p>Upload your CloudFormation template(s) to convert them to Terraform, receive a security analysis, and get documentation.</p>
+        
+        <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
+            <input type="file" name="file" id="file" class="file-input" accept=".yaml,.yml,.json,.zip" multiple>
+            <label for="file" class="file-label">Choose File(s)</label>
+        </form>
+        
+        <div id="result" class="result" style="display: none;"></div>
+        
+        <div id="securityReport" class="security-report" style="display: none;">
+            <h2>Security Analysis</h2>
+            <div class="security-score">Security Score: <span id="securityScore"></span>/100</div>
+            <div id="securityIssues" class="security-issues"></div>
         </div>
     </div>
 
@@ -183,21 +125,24 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    xhr: function() {
-                        var xhr = new window.XMLHttpRequest();
-                        xhr.responseType = 'blob';
-                        return xhr;
+                    beforeSend: function() {
+                        $('#result').html('<p>Converting and analyzing...</p>').show();
                     },
                     success: function(data) {
-                        var blob = new Blob([data], {type: 'application/zip'});
-                        var downloadUrl = URL.createObjectURL(blob);
-                        var a = document.createElement("a");
-                        a.href = downloadUrl;
-                        a.download = 'converted_files.zip';
-                        document.body.appendChild(a);
-                        a.click();
-                        $('#result').html('<p>Conversion successful! Download started.</p>');
-                        $('#file').val('');  // Clear the file input
+                        $('#result').html('<p>Conversion successful!</p><a href="' + data.download_url + '" class="download-link">Download Converted Files</a>');
+                        
+                        // Display security report
+                        $('#securityScore').text(data.results[0].security_score);
+                        var issuesHtml = '';
+                        data.results[0].security_issues.forEach(function(issue) {
+                            var severityClass = 'severity-' + issue.severity.toLowerCase();
+                            issuesHtml += '<div class="security-issue ' + severityClass + '">';
+                            issuesHtml += '<strong>' + issue.type + '</strong> (Line ' + issue.line + ')<br>';
+                            issuesHtml += issue.description;
+                            issuesHtml += '</div>';
+                        });
+                        $('#securityIssues').html(issuesHtml);
+                        $('#securityReport').show();
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         $('#result').html('<p class="error">Error: ' + jqXHR.responseJSON.error + '</p>');

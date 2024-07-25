@@ -1,4 +1,0 @@
-Flask==2.0.1
-Werkzeug==2.0.1
-PyYAML==5.4.1
-argparse==1.4.0

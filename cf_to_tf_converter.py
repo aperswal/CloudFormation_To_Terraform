@@ -2,19 +2,14 @@ import yaml
 import json
 import os
 from typing import Dict, Any, List
+from security_analyzer import analyze_security, generate_security_report, get_security_score
 
 class CloudFormationLoader(yaml.SafeLoader):
-    """
-    Custom YAML loader for CloudFormation templates to handle intrinsic function tags.
-    """
     def __init__(self, stream):
         self._root = stream.name
         super(CloudFormationLoader, self).__init__(stream)
 
 def construct_cfn_tag(loader, node):
-    """
-    Constructs CloudFormation intrinsic function tags.
-    """
     if isinstance(node, yaml.ScalarNode):
         return f"${{{node.value}}}"
     elif isinstance(node, yaml.SequenceNode):
@@ -22,15 +17,10 @@ def construct_cfn_tag(loader, node):
     elif isinstance(node, yaml.MappingNode):
         return {construct_cfn_tag(loader, k): construct_cfn_tag(loader, v) for k, v in node.value}
 
-# Register constructors for CloudFormation intrinsic functions
 for tag in ['!Ref', '!GetAtt', '!Sub', '!Join', '!Select', '!Split', '!FindInMap', '!If', '!Equals', '!And', '!Or', '!Not', '!ImportValue']:
     CloudFormationLoader.add_constructor(tag, construct_cfn_tag)
 
 def load_cloudformation_template(file_path: str) -> Dict[str, Any]:
-    """
-    Load a CloudFormation template from a given file path.
-    Supports both JSON and YAML formats.
-    """
     with open(file_path, 'r') as f:
         if file_path.endswith('.json'):
             return json.load(f)
@@ -38,9 +28,6 @@ def load_cloudformation_template(file_path: str) -> Dict[str, Any]:
             return yaml.load(f, Loader=CloudFormationLoader)
 
 def convert_resource_type(cf_type: str) -> str:
-    """
-    Convert CloudFormation resource type to Terraform resource type.
-    """
     type_mapping = {
         'AWS::S3::Bucket': 'aws_s3_bucket',
         'AWS::EC2::Instance': 'aws_instance',
@@ -64,27 +51,22 @@ def convert_resource_type(cf_type: str) -> str:
         'AWS::SNS::Topic': 'aws_sns_topic',
         'AWS::SQS::Queue': 'aws_sqs_queue',
         'AWS::KMS::Key': 'aws_kms_key',
+        # Add more mappings here
     }
     return type_mapping.get(cf_type, f"aws_{cf_type.lower().replace('::', '_')}")
 
 def convert_property_name(name: str) -> str:
-    """
-    Convert CloudFormation property name to Terraform property name.
-    """
     name_mapping = {
         'BucketName': 'bucket',
         'AccessControl': 'acl',
         'VersioningConfiguration': 'versioning',
         'ServerSideEncryptionConfiguration': 'server_side_encryption_configuration',
+        # Add more mappings here
     }
     converted = name_mapping.get(name, name)
     return converted.lower().replace('_', '')
 
 def convert_property_value(value: Any, property_name: str) -> Any:
-    """
-    Convert CloudFormation property value to Terraform property value.
-    Handles intrinsic functions and nested structures.
-    """
     if isinstance(value, dict):
         if 'Ref' in value:
             return f"${{var.{value['Ref']}}}"
@@ -100,6 +82,7 @@ def convert_property_value(value: Any, property_name: str) -> Any:
             return f"${{join(\"{delimiter}\", {parts})}}"
         elif 'Fn::Sub' in value:
             return f"${{format(\"{value['Fn::Sub']}\", {{}})}}".replace("${", "$${")
+        # Add more intrinsic function handlers here
     elif isinstance(value, list):
         if property_name == 'SecurityGroups':
             return [f"${{aws_security_group.{item.lower()}.id}}" for item in value]
@@ -109,9 +92,6 @@ def convert_property_value(value: Any, property_name: str) -> Any:
     return value
 
 def convert_resource(name: str, resource: Dict[str, Any]) -> List[str]:
-    """
-    Convert a CloudFormation resource to Terraform configuration.
-    """
     resource_type = convert_resource_type(resource['Type'])
     properties = resource.get('Properties', {})
     
@@ -156,9 +136,6 @@ def convert_resource(name: str, resource: Dict[str, Any]) -> List[str]:
     return tf_resources
 
 def convert_output(name: str, output: Dict[str, Any]) -> str:
-    """
-    Convert a CloudFormation output to Terraform output configuration.
-    """
     value = convert_property_value(output.get('Value'), 'Output')
     description = output.get('Description', '')
     
@@ -171,9 +148,6 @@ def convert_output(name: str, output: Dict[str, Any]) -> str:
     return '\n'.join(tf_output)
 
 def convert_to_terraform(cf_template: Dict[str, Any]) -> str:
-    """
-    Convert an entire CloudFormation template to Terraform configuration.
-    """
     tf_output = []
     
     if 'Parameters' in cf_template:
@@ -203,23 +177,29 @@ def convert_to_terraform(cf_template: Dict[str, Any]) -> str:
 
     return '\n'.join(tf_output)
 
-def process_cf_file(file_path: str) -> str:
-    """
-    Process a single CloudFormation file and convert it to Terraform configuration.
-    """
+def process_cf_file(file_path: str) -> Dict[str, Any]:
     cf_template = load_cloudformation_template(file_path)
-    return convert_to_terraform(cf_template)
+    tf_code = convert_to_terraform(cf_template)
+    security_issues = analyze_security(tf_code)
+    security_report = generate_security_report(tf_code)
+    security_score = get_security_score(security_issues)
+    
+    return {
+        "terraform_code": tf_code,
+        "security_report": security_report,
+        "security_score": security_score,
+        "security_issues": security_issues
+    }
 
-def process_cf_folder(folder_path: str) -> str:
-    """
-    Process all CloudFormation files in a folder and convert them to Terraform configuration.
-    """
-    tf_outputs = []
-    for root, _, files in os.walk(folder_path):
-        for file in files:
-            if file.endswith(('.yaml', '.yml', '.json')):
-                file_path = os.path.join(root, file)
-                tf_outputs.append(f"# Converted from: {file}")
-                tf_outputs.append(process_cf_file(file_path))
-                tf_outputs.append("")  # Add a blank line between files
-    return '\n'.join(tf_outputs)
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) != 2:
+        print("Usage: python cf_to_tf_converter.py <cloudformation_template_file>")
+        sys.exit(1)
+    
+    input_file = sys.argv[1]
+    result = process_cf_file(input_file)
+    print(result["terraform_code"])
+    print("\nSecurity Report:")
+    print(result["security_report"])
+    print(f"\nSecurity Score: {result['security_score']}/100")
