@@ -53,7 +53,7 @@ def convert_resource_type(cf_type: str) -> str:
         'AWS::KMS::Key': 'aws_kms_key',
         # Add more mappings here
     }
-    return type_mapping.get(cf_type, f"aws_{cf_type.lower().replace('::', '_')}")
+    return type_mapping.get(cf_type, f"{cf_type.lower().replace('::', '_')}")
 
 def convert_property_name(name: str) -> str:
     name_mapping = {
